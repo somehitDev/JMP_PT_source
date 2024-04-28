@@ -1,0 +1,40 @@
+dtResult = DataTable("Result.jmp");
+
+gbResult = NewWindow(
+    "Optimize Result",
+    HSplitterBox(
+        TabPageBox(
+            "Result Data",
+            dtResult << NewDataBox,
+            << Title("Result Data")
+        ),
+        TabPageBox(
+            "Result Graph",
+            gb = dtResult << GraphBuilder(
+				Size( 534, 456 ),
+				ShowControlPanel( 0 ),
+				Variables( X( :X1 ), Y( :X2 ), Group X( :Iter ), Color( :Y ) ),
+				Elements( Points( X, Y, Legend( 7 ) ) ),
+				SendToReport(
+					Dispatch( {}, "X1", ScaleBox,
+						{Format( "Fixed Dec", 12, 2 ), Min( -2.05 ), Max( 2.05 ), Inc( 0.5 ), Minor Ticks( 1 ),
+						Add Ref Line( 1, "Solid", "Dark Red", "", 1 )}
+					),
+					Dispatch( {}, "X2", ScaleBox,
+						{Format( "Fixed Dec", 12, 2 ), Min( -2.05 ), Max( 2.05 ), Inc( 0.5 ), Minor Ticks( 1 ),
+						Add Ref Line( 1, "Solid", "Dark Red", "", 1 )}
+					),
+				)
+			),
+            << Title("Result Graph")
+        )
+    ),
+
+    // Wait(0);
+	gb << LocalDataFilter(
+		AddFilter(
+			columns( :Y_Rank ),
+			Display( :Y_Rank, N Items( 15 ), Find( Set Text( "" ) ) )
+		)
+	);
+) << SetWindowSize(1400, 700);

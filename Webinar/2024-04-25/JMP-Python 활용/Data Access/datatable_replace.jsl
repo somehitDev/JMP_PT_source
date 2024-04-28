@@ -1,0 +1,21 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+// open csv
+dt = Open(gdd || "datatable.csv");
+
+// python connect
+pc = PythonConnect();
+
+// send datatable to python
+pc << Send(dt);
+
+// run ui
+pc << SubmitFile("datatable_replace.py");
+
+// close datatable
+Close(dt, NoSave);

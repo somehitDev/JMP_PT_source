@@ -1,0 +1,27 @@
+﻿NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+// open model
+dtModel = Open( gdd || "Model.jmp" );
+
+// open output
+dtResult = Open( gdd || "Result.jmp" );
+// Y Rank
+dtResult << NewColumn( "Y_Rank", Numeric, "Nominal", Format( "Best", 12 ),
+	Formula( ColRank( :Y ) )
+);
+
+// python connect
+pc = PythonConnect();
+
+// send datatables and variables
+pc << Send(gdd);
+pc << Send(dtModel);
+pc << Send(dtResult);
+
+// run script
+pc << SubmitFile(gdd || "pso_main.py");

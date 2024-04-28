@@ -1,0 +1,9 @@
+NamesDefaultToHere(1);
+
+PythonInstallPackages("pandas");
+
+PythonSubmit("\[
+import jmputils
+
+jmputils.jpip("install --upgrade", "pandas")
+]\");

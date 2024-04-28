@@ -1,0 +1,17 @@
+Names Default To Here( 1 );
+
+NewWindow(
+    "Join Compare",
+    VSplitterBox(
+        TabPageBox(
+            "from jmp",
+            DataTable("from jmp") << NewDataBox,
+            << Title("From JMP")
+        ),
+        TabPageBox(
+            "from python",
+            DataTable("from python") << NewDataBox,
+            << Title("From Python")
+        )
+    )
+) << SetWindowSize(800, 700);

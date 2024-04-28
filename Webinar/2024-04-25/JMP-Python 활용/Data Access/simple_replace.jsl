@@ -1,0 +1,16 @@
+NamesDefaultToHere(1);
+
+// define jmp variables
+item = "";
+value = "";
+
+// define replace function
+setItem = Function({ newItem },
+	item = newItem;
+);
+
+// python connect
+pc = PythonConnect();
+
+// run ui
+pc << SubmitFile("simple_replace.py");

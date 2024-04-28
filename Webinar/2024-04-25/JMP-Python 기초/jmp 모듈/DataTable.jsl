@@ -1,0 +1,28 @@
+NamesDefaultToHere(1);
+
+// open from jmp
+dt = Open("$SAMPLE_DATA/Big Class.jmp");
+dt << SetWindowTitle("Big Class(jmp)");
+
+// change data from jmp
+Column(dt, "name")[1] = "LeeSeungHwan";
+
+// open from python
+PythonSubmit("\[
+import os, jmp
+
+dt_py = jmp.open(os.path.join(jmp.SAMPLE_DATA, "Big Class.jmp"))
+dt_py.name = "Big Class(python)"
+# equals
+# jmp.run_jsl("""
+# DataTable("Big Class.jmp") << SetWindowTitle("Big Class(python)");
+# """)
+]\");
+
+// change data from python
+PythonSubmit("\[
+import jmp
+
+dt_py = jmp.table("Big Class(python)")
+dt_py["name"][0] = "LeeSeungHwan"
+]\");

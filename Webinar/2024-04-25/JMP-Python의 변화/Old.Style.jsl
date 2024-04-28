@@ -1,0 +1,8 @@
+NamesDefaultToHere(1);
+
+pc = PythonConnect(
+	Echo(1),
+	Path("/opt/homebrew/Cellar/python@3.11/3.11.8/Frameworks/Python.framework/Versions/3.11/lib/libpython3.11.dylib"),
+);
+
+pc << Term();
