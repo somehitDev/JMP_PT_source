@@ -1,0 +1,34 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+PythonSend(gdd);
+PythonSubmitFile(gdd || "pytorch.py");
+
+dtPredict = PythonGet("df_predict");
+dtPredict << NewDataView();Wait(0);
+dtPredict << SetWindowTitle("PyTorch Predict Result");
+
+gb = dtPredict << Graph Builder(
+	Show Control Panel( 0 ),
+	Variables( X( :X1 ), Y( :Y ), Y( :YPredict ) ),
+	Elements(
+		Position( 1, 1 ),
+		Line Of Fit( X, Y, Legend( 45 ) ),
+		Points( X, Y, Legend( 39 ) )
+	),
+	Elements(
+		Position( 1, 2 ),
+		Line Of Fit( X, Y, Legend( 46 ) ),
+		Points( X, Y, Legend( 40 ) )
+	),
+	SendToReport(
+		Dispatch( {}, "400", LegendBox,
+			{Legend Position( {45, [2, -3], 39, [0], 46, [3, -3], 40, [1]} )}
+		)
+	)
+);
+gb << SetWindowTitle("PyTorch Predict Compare");
