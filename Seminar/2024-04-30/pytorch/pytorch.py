@@ -2,7 +2,6 @@
 import os, pandas as pd, torch, numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
-# gdd = os.path.dirname(os.path.realpath(__file__))
 train_window = 100
 epochs = 150
 scaler = MinMaxScaler(feature_range = (0, 1))
