@@ -1,0 +1,123 @@
+NamesDefaultToHere(1);
+
+dtExtracts = DataTable("Extracts");
+
+dtExtracts << ClearRowStates;
+If (NRows(dtExtracts) > 10,
+	dtExtracts << SelectWhere(:CategoryLength > ColMean(:CategoryLength));
+,
+	dtExtracts << SelectAllRows;
+);
+channelIds = AssociativeArray(dtExtracts:ChannelID[dtExtracts << GetSelectedRows]) << GetKeys;
+dtExtracts << ClearRowStates;
+
+reportWindow = NewWindow("Predict Compare",
+	ShowMenu(0), ShowToolbars(0),
+	vl = VListBox(
+		hl = HListBox()
+	)
+);
+
+ForEach({ channelId }, channelIds,
+    dtFormulaPredict = DataTable("Predict of " || channelId || " by Formula");
+    dtTorchPredict = DataTable("Predict of " || channel_id || " by Torch");
+
+    dtPredictCompare = Eval(dtFormulaPredict << GetScript);
+    dtPredictCompare << ShowWindow(0);
+    dtPredictCompare << DeleteColumns(:StreamTime, :LiveID, :LiveCategory, :ChannelID, :CategoryCode);
+
+    dtPredictCompare:ViewerPredictTorch = dtTorchPredict:ViewersPredictTorch;
+    dtPredictCompare:PredictErrorTorch = dtTorchPredict:PredictErrorTorch;
+    dtPredictCompare:PredictErrorRateTorch = dtTorchPredict:PredictErrorRateTorch;
+
+    hl << Append(dtPredictCompare << GraphBuilder(
+        Show Control Panel( 0 ),
+        Show Legend( 0 ),
+        Show Title( 0 ),
+        Variables(
+            X( :SearchTime ),
+            Y( :Viewers ),
+            Y( :ViewerPredictTorch, Position( 1 ) ),
+            Y( :Viewers ),
+            Y( :ViewersPredictFormula, Position( 2 ) )
+        ),
+        Elements( Position( 1, 1 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 26 ) ) ),
+        Elements( Position( 1, 2 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 13 ) ) ),
+        SendToReport(
+            Dispatch( {}, "Graph Builder", OutlineBox,
+                {Set Title( channelId || " Predict" ), Image Export Display( Normal )}
+            )
+        )
+    ));
+    hl << Append(dtPredictCompare << GraphBuilder(
+        Show Control Panel( 0 ),
+        Show Legend( 0 ),
+        Show Title( 0 ),
+        Variables(
+            X( :SearchTime ),
+            Y( :PredictErrorFormula ),
+            Y( :PredictErrorTorch, Position( 1 ) ),
+            Y( :PredictErrorRateFormula ),
+            Y( :PredictErrorRateTorch, Position( 2 ) )
+        ),
+        Elements( Position( 1, 1 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 26 ) ) ),
+        Elements( Position( 1, 2 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 13 ) ) ),
+        SendToReport(
+            Dispatch( {}, "Graph Builder", OutlineBox,
+                {Set Title( channelId || " ErrorRate" ), Image Export Display( Normal )}
+            )
+        )
+    ));
+);
+
+dtFormulaPredict = DataTable("Predict of All by Formula");
+dtTorchPredict = DataTable("Predict of All by Torch");
+
+dtPredictCompare = Eval(dtFormulaPredict << GetScript);
+dtPredictCompare << ShowWindow(0);
+dtPredictCompare << DeleteColumns(:StreamTime, :LiveID, :LiveCategory, :ChannelID, :CategoryCode);
+
+dtPredictCompare:ViewerPredictTorch = dtTorchPredict:ViewersPredictTorch;
+dtPredictCompare:PredictErrorTorch = dtTorchPredict:PredictErrorTorch;
+dtPredictCompare:PredictErrorRateTorch = dtTorchPredict:PredictErrorRateTorch;
+
+vl << Append(dtPredictCompare << GraphBuilder(
+    Show Control Panel( 0 ),
+    Show Legend( 0 ),
+    Show Title( 0 ),
+    Variables(
+        X( :SearchTime ),
+        Y( :Viewers ),
+        Y( :ViewerPredictTorch, Position( 1 ) ),
+        Y( :Viewers ),
+        Y( :ViewersPredictFormula, Position( 2 ) )
+    ),
+    Elements( Position( 1, 1 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 26 ) ) ),
+    Elements( Position( 1, 2 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 13 ) ) ),
+    SendToReport(
+        Dispatch( {}, "Graph Builder", OutlineBox,
+            {Set Title( "Predict" ), Image Export Display( Normal )}
+        )
+    )
+));
+vl << Append(dtPredictCompare << GraphBuilder(
+    Show Control Panel( 0 ),
+    Show Legend( 0 ),
+    Show Title( 0 ),
+    Variables(
+        X( :SearchTime ),
+        Y( :PredictErrorFormula ),
+        Y( :PredictErrorTorch, Position( 1 ) ),
+        Y( :PredictErrorRateFormula ),
+        Y( :PredictErrorRateTorch, Position( 2 ) )
+    ),
+    Elements( Position( 1, 1 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 26 ) ) ),
+    Elements( Position( 1, 2 ), Smoother( X, Y( 1 ), Y( 2 ), Legend( 13 ) ) ),
+    SendToReport(
+        Dispatch( {}, "Graph Builder", OutlineBox,
+            {Set Title( "ErrorRate" ), Image Export Display( Normal )}
+        )
+    )
+));
+
+reportWindow << MaximizeWindow(1);

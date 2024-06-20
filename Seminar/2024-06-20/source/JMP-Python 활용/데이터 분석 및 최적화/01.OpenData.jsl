@@ -1,0 +1,17 @@
+NamesDefaultToHere(1);
+
+CloseAll(DataTables, NoSave);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+PythonSend(gdd);
+PythonSubmitFile(gdd || "01.OpenData.py");
+
+dtStreams = PythonGet("df_streams") << NewDataView(); Wait(0);
+dtStreams << SetWindowTitle("Streams");
+
+dtCategoryMatch = PythonGet("df_category_match") << NewDataView(); Wait(0);
+dtCategoryMatch << SetWindowTitle("CategoryMatch");

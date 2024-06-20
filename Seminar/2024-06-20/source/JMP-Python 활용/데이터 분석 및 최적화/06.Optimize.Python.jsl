@@ -1,0 +1,44 @@
+﻿NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dtCategoryMatch = DataTable("CategoryMatch");
+dtExtracts = DataTable("Extracts");
+
+dtExtracts << ClearRowStates;
+If (NRows(dtExtracts) > 10,
+	dtExtracts << SelectWhere(:CategoryLength > ColMean(:CategoryLength));
+,
+	dtExtracts << SelectAllRows;
+);
+channelIds = AssociativeArray(dtExtracts:ChannelID[dtExtracts << GetSelectedRows]) << GetKeys;
+dtExtracts << ClearRowStates;
+
+Try(Close(dtOptimize, NoSave));
+dtOptimize = NewTable(
+	"Optimized by sklearn", Invisible,
+	NewColumn("ChannelID", Character, "Nominal"),
+	NewColumn("StreamTime", Numeric, "Continuous"),
+	NewColumn("CategoryCode", Numeric, "Continuous"),
+	NewColumn("Viewers", Numeric, "Continuous")
+);
+
+// predict by channelId
+foreach({ channelId }, channelIds,
+    dtOptimize << AddRows(1);
+    dtOptimize:ChannelID[NRows(dtOptimize)] = channelId;
+
+	PythonSend(channelId);
+    PythonSend(dtCategoryMatch);
+    PythonSend(dtOptimize);
+    PythonSubmitFile(gdd || "06.Optimize.Python.py");
+
+    // dtOptHistory = PythonGet("history_datas") << NewDataView; Wait(0);
+    // dtOptHistory << ShowWindow(0);
+    // dtOptHistory << SetWindowTitle("Opt History of " || channelId);
+);
+
+dtOptimize << ShowWindow(1);

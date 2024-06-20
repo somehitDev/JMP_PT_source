@@ -1,0 +1,17 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dtStreams = DataTable("Streams");
+dtStreamsPredict = DataTable("StreamsPredict");
+dtExtracts = DataTable("Extracts");
+
+
+PythonSend(gdd);
+PythonSend(dtStreams);
+PythonSend(dtStreamsPredict);
+PythonSend(dtExtracts);
+PythonSubmitFile(gdd || "04.Predict.Torch.py");

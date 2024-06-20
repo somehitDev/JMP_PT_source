@@ -1,0 +1,40 @@
+NamesDefaultToHere(1);
+
+sourceText = "Hello, JMP-Python!";
+Show(sourceText);
+
+sourceLength = Length(sourceText);
+Show(sourceLength);
+
+substrText = Substr(sourceText, 8);
+Show(substrText);
+
+newSourceText = sourceText || " Python!";
+Show(newSourceText);
+
+splitTextList1 = Words(newSourceText, ", ");
+splitTextList2 = Words(newSourceText, ",");
+Show(splitTextList1);
+Show(splitTextList2);
+
+joinedText = ConcatItems(splitTextList2, ",");
+Show(joinedText);
+
+replaceText = Substitute(newSourceText, "Python", "PYTHON");
+Show(replaceText);
+
+
+upperText = Uppercase(sourceText);
+Show(upperText);
+
+lowerText = Lowercase(sourceText);
+Show(lowerText);
+
+trimText = TrimWhitespace("  " || sourceText || "  ");
+Show(trimText);
+
+isStartsWith = StartsWith(sourceText, "Hello");
+Show(isStartsWith);
+
+isEndsWith = EndsWith(sourceText, "Python!");
+Show(isEndsWith);

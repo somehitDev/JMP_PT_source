@@ -1,0 +1,51 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dtOptFormula = DataTable("Optimized By Formula");
+dtOptSklearn = DataTable("Optimized by sklearn");
+
+PythonSend(dtOptFormula);
+PythonSend(dtOptSklearn);
+PythonSubmitFile(gdd || "07.Compare.py");
+
+Try(Close(dtCompare, NoSave));
+dtCompare = PythonGet("df_compare") << NewDataView; Wait(0);
+dtCompare << ShowWindow(0);
+dtCompare << SetWindowTitle("Compare");
+
+// show compare plot
+reportWindow = NewWindow("Predict By Formula",
+    ShowMenu(0), ShowToolbars(0),
+    dtCompare << GraphBuilder(
+		Show Control Panel( 0 ),
+		Show Title( 0 ),
+		Variables(
+			X( :ChannelID ),
+			Y( :ViewersFormula ),
+			Y( :ViewersSklearn, Position( 1 ) ),
+			Y( :CategoryCodeFormula ),
+			Y( :CategoryCodeSklearn, Position( 2 ) ),
+			Y( :StreamTimeFormula ),
+			Y( :StreamTimeSklearn, Position( 3 ) )
+		),
+		Elements( Position( 1, 1 ), Bar( X, Y( 1 ), Y( 2 ), Legend( 35 ) ) ),
+		Elements( Position( 1, 2 ), Bar( X, Y( 1 ), Y( 2 ), Legend( 36 ) ) ),
+		Elements( Position( 1, 3 ), Bar( X, Y( 1 ), Y( 2 ), Legend( 37 ) ) ),
+		SendToReport(
+			Dispatch( {}, "Graph Builder", OutlineBox,
+				{Set Title( "Compare Formula vs Sklearn" ),
+				Image Export Display( Normal )}
+			)
+		)
+	)
+);
+reportWindow << MaximizeWindow(1);
+
+// save report as image
+reportWindow << GetPicture();
+reportWindow << SavePicture(gdd || "/reports/Compare.png", "png");
+reportWindow << MaximizeWindow(1);

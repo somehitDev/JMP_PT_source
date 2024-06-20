@@ -1,0 +1,31 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dtStreams = DataTable("Streams");
+dtExtracts = DataTable("Extracts");
+
+dtExtracts << ClearRowStates;
+If (NRows(dtExtracts) > 10,
+	dtExtracts << SelectWhere(:CategoryLength > ColMean(:CategoryLength));
+,
+	dtExtracts << SelectAllRows;
+);
+channelIds = AssociativeArray(dtExtracts:ChannelID[dtExtracts << GetSelectedRows]) << GetKeys;
+dtExtracts << ClearRowStates;
+
+ForEach({ channelId }, channelIds,
+    dtStreams << ClearRowStates;
+	dtStreamChannel = dtStreams << SelectWhere(:ChannelID == channelId) << DataView; Wait(0);
+    dtStreamChannel << ShowWindow(0);
+    
+    PythonSend(gdd);
+    PythonSend(channelId);
+    PythonSend(dtStreamChannel);
+    PythonSubmitFile(gdd || "05.Python.Model.py");
+
+    Close(dtStreamChannel, NoSave);
+);

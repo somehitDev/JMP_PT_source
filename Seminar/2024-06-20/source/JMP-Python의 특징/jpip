@@ -1,0 +1,8 @@
+#!/bin/bash
+# Usage: ./jpip install --user --no-warn-script-location python_package(s)
+export PATH="/usr/bin:/bin:/usr/sbin:/sbin:/Applications/JMP Pro 18 Early Adopter.app/Contents/Frameworks/Python.framework/Versions/Current/bin:/Users/shlee-d-1-nb/Library/Application Support/JMP/Python/3.11/bin"
+export PYTHONUSERBASE="/Users/shlee-d-1-nb/Library/Application Support/JMP/Python/3.11"
+export PYTHONPATH="/Applications/JMP Pro 18 Early Adopter.app/Contents/Frameworks/Python.framework/Versions/Current:/Applications/JMP Pro 18 Early Adopter.app/Contents/Frameworks/Python.framework/Versions/Current/lib/python311.zip:/Users/shlee-d-1-nb/Library/Application Support/JMP/Python/3.11:/Users/shlee-d-1-nb/Library/Application Support/JMP/Python/3.11/lib/python/site-packages"
+export PYTHONHOME="/Applications/JMP Pro 18 Early Adopter.app/Contents/Frameworks/Python.framework/Versions/Current"
+"/Applications/JMP Pro 18 Early Adopter.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3.11" "/Applications/JMP Pro 18 Early Adopter.app/Contents/Frameworks/Python.framework/Versions/Current/bin"/jsite.py
+"/Applications/JMP Pro 18 Early Adopter.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3.11" -m pip "$@"

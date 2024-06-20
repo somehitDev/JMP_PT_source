@@ -1,0 +1,12 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dt = Open("$SAMPLE_DATA/Big Class.jmp");
+
+PythonSend(gdd);
+PythonSend(dt);
+PythonSubmitFile(gdd || "01.SaveToDB.py");

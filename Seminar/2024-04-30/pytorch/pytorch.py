@@ -57,9 +57,9 @@ if not os.path.exists(model_file):
 
         model.eval()
         torch.save(model, model_file)
-    else:
-        model = torch.load(model_file)
-        model.eval()
+else:
+    model = torch.load(model_file)
+    model.eval()
 
 
 ## predict

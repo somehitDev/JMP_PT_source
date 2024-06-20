@@ -1,0 +1,48 @@
+﻿NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dtFormulas = DataTable("Formulas");
+dtCategoryMatch = DataTable("CategoryMatch");
+
+Try(Close(dtOptimize, NoSave));
+dtOptimize = NewTable(
+	"Optimized By Formula", Invisible,
+	NewColumn("ChannelID", Character, "Nominal"),
+	NewColumn("StreamTime", Numeric, "Continuous"),
+	NewColumn("CategoryCode", Numeric, "Continuous"),
+	NewColumn("Viewers", Numeric, "Continuous")
+);
+
+// predict by channelId
+foreach({ channelId, cIdx }, AssociativeArray(dtFormulas:ChannelID) << GetKeys,
+    dtFormula = NewTable(
+        "Formula", Invisible,
+        NewColumn("StreamTime", Numeric, "Continuous"),
+        NewColumn("CategoryCode", Numeric, "Continuous"),
+    );
+    dtFormula << AddRows(1);
+
+    dtOptimize << AddRows(1);
+    dtOptimize:ChannelID[NRows(dtOptimize)] = channelId;
+
+    formulaText = (dtFormulas:Formula[dtFormulas << GetRowsWhere(:ChannelID == channelId)])[1];
+
+	PythonSend(channelId);
+	PythonSend(formulaText);
+    PythonSend(dtFormula);
+    PythonSend(dtCategoryMatch);
+    PythonSend(dtOptimize);
+    PythonSubmitFile(gdd || "04.Optimize.JMP.py");
+
+    // dtOptHistory = PythonGet("history_datas") << NewDataView; Wait(0);
+    // dtOptHistory << ShowWindow(0);
+    // dtOptHistory << SetWindowTitle("Opt History of " || channelId);
+
+    Close(dtFormula, NoSave);
+);
+
+dtOptimize << ShowWindow(1);

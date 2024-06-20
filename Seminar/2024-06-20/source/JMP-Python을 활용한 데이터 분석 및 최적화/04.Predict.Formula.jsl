@@ -1,0 +1,57 @@
+﻿NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dtStreamsPredict = DataTable("StreamsPredict");
+dtFormulas = DataTable("Formulas");
+channelIds = AssociativeArray(dtFormulas:ChannelID[dtFormulas << GetRowsWhere(:ChannelID != "All")]) << GetKeys;
+
+// predict by channelId
+foreach({ channelId, cIdx }, channelIds,
+	dtStreamsPredict << ClearRowStates;
+	dtStreamChannel = dtStreamsPredict << SelectWhere(:ChannelID == channelId) << DataView; Wait(0);
+    dtStreamChannel << SetWindowTitle("Predict of " || channelId || " by Formula");
+    dtStreamChannel << ShowWindow(0);
+    dtStreamChannel << ClearRowStates;
+    dtStreamChannel << HideColumns(1, { :SearchTime, :StreamTime, :LiveID, :LiveTitle, :LiveCategory, :ChannelID, :CategoryCode });
+    
+    formulaString = (dtFormulas:Formula[dtFormulas << GetRowsWhere(:ChannelID == channelId)])[1];
+
+	// 예측값
+    PythonSend(dtStreamChannel << GetWindowTitle, PythonName("title"));
+    PythonSend(formulaString);
+    PythonSubmitFile(gdd || "04.Predict.Formula.py");
+
+    // 오차값
+    dtStreamChannel << New Column("PredictErrorFormula", Numeric, "Continuous", Formula(Abs(:Viewers - :ViewersPredictFormula)));
+    dtStreamChannel:PredictErrorFormula << IgnoreErrors(2);
+
+    // 오차율
+    dtStreamChannel << New Column("PredictErrorRateFormula", Numeric, "Continuous", Formula(If(:Viewers > :ViewersPredictFormula, Round(:PredictError / :Viewers * 100), Round(:PredictError / :ViewersPredictFormula * 100))));
+    dtStreamChannel:PredictErrorRateFormula << IgnoreErrors(2);
+);
+
+// predict for all
+dtStreamsPredictCopy = Eval(dtStreamsPredict << GetScript);
+dtStreamsPredictCopy << SetWindowTitle("Predict of All by Formula");
+dtStreamsPredictCopy << ShowWindow(0);
+dtStreamsPredictCopy << ClearRowStates;
+dtStreamsPredictCopy << Hide Columns(1, { :SearchTime, :StreamTime, :LiveID, :LiveTitle, :LiveCategory, :ChannelID, :CategoryCode });
+
+formulaString = (dtFormulas:Formula[dtFormulas << GetRowsWhere(:ChannelID == "All")])[1];
+
+// 예측값
+PythonSend(dtStreamsPredictCopy << GetWindowTitle, PythonName("title"));
+PythonSend(formulaString);
+PythonSubmitFile(gdd || "04.Predict.Formula.py");
+
+// 오차값
+dtStreamsPredictCopy << New Column("PredictError", Numeric, "Continuous", Formula(Abs(:Viewers - :ViewersPredictFormula)));
+dtStreamsPredictCopy:PredictError << IgnoreErrors(2);
+
+// 오차율
+dtStreamsPredictCopy << New Column("PredictErrorRate", Numeric, "Continuous", Formula(If(:Viewers > :ViewersPredictFormula, Round(:PredictError / :Viewers * 100), Round(:PredictError / :ViewersPredictFormula * 100))));
+dtStreamsPredictCopy:PredictErrorRate << IgnoreErrors(2);

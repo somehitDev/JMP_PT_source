@@ -1,0 +1,4 @@
+# git+https://github.com/billy0402/python-chzzk.git
+requests==2.31.0
+schedule==1.2.1
+pandas==2.2.2

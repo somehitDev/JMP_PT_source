@@ -1,0 +1,80 @@
+﻿NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+dtStreams = DataTable("Streams");
+dtExtracts = DataTable("Extracts");
+
+dtExtracts << ClearRowStates;
+If (NRows(dtExtracts) > 10,
+	dtExtracts << SelectWhere(:CategoryLength > ColMean(:CategoryLength));
+,
+	dtExtracts << SelectAllRows;
+);
+channelIds = AssociativeArray(dtExtracts:ChannelID[dtExtracts << GetSelectedRows]) << GetKeys;
+dtExtracts << ClearRowStates;
+
+Try(Close(DataTable("Formulas"), NoSave));
+dtFormulas = NewTable(
+    "Formulas",
+	NewColumn("ChannelID", Character, "Nominal"),
+	NewColumn("Formula", Character, "Nominal")
+);
+
+reportWindow = NewWindow("Predict By Formula",
+    ShowMenu(0), ShowToolbars(0),
+    vl = VListBox()
+);
+reportWindow << ShowWindow(0);
+
+// get formula per channel
+hl = 0;
+ForEach({ channelId, cIdx }, channelIds,
+    If (Modulo(cIdx, 4) == 1,
+        vl << Append(hl = HListBox());
+    );
+
+    dtStreams << ClearRowStates;
+    dtStreamChannel = dtStreams << SelectWhere(:ChannelID == channelId) << DataView; Wait(0);
+    dtStreamChannel << ShowWindow(0);
+    dtStreamChannel << SetWindowTitle("Streams of " || channelId);
+    dtStreamChannel << ClearRowStates;
+    dtStreamChannel << DeleteColumns(:LiveID, :LiveTitle, :ChannelID);
+    dtStreamChannel << NewColumn("CategoryCode", Numeric, "Nominal");
+
+    hl << Append(bt = dtStreamChannel << BoostedTree(
+        Y( :Viewers ),
+        X( :CategoryCode, :StreamTime ),
+        Method( "Boosted Tree" ),
+        Plot Actual by Predicted( 1 ),
+        Splits per Tree( 19 ),
+        Number of Layers( 200 ),
+        Learning Rate( 0.2 ),
+        Go,
+        SendToReport(
+			Dispatch(
+				{},
+				"Boosted Tree for Viewers",
+				OutlineBox,
+				{Set Title( channelId )}
+			)
+		)
+    ));
+
+    dtFormulas << AddRows(1);
+    dtFormulas:ChannelID[cIdx] = channelId;
+    dtFormulas:Formula[cIdx] = bt << GetPredictionFormula;
+);
+
+// save report as image
+reportWindow << GetPicture();
+reportWindow << SavePicture(gdd || "/reports/Analysis.png", "png");
+
+// close all tables and reportWindow
+ForEach({ channelId }, channelIds,
+    Try(Close(DataTable("Streams of " || channelId), NoSave));
+);
+Try(reportWindow << CloseWindow);

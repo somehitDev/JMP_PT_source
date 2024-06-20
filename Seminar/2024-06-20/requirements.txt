@@ -1,0 +1,6 @@
+pandas==2.2.2
+scipy==1.13.0
+scikit-learn==1.4.2
+SQLAlchemy==2.0.30
+pymoo==0.6.1.1
+joblib==1.4.2

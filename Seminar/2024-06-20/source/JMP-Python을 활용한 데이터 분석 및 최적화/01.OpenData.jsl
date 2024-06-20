@@ -1,0 +1,24 @@
+NamesDefaultToHere(1);
+
+CloseAll(DataTables, NoSave);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+PythonSend(gdd);
+PythonSubmitFile(gdd || "01.OpenData.py");
+
+
+dtCategoryMatch = PythonGet("df_category_match") << NewDataView(); Wait(0);
+dtCategoryMatch << SetWindowTitle("CategoryMatch");
+dtCategoryMatch << ShowWindow(0);
+
+dtStreamsSource = PythonGet("df_streams_source") << NewDataView(); Wait(0);
+dtStreamsSource << SetWindowTitle("Streams");
+dtStreamsSource << ShowWindow(0);
+
+dtStreamsPredict = PythonGet("df_streams_predict") << NewDataView(); Wait(0);
+dtStreamsPredict << SetWindowTitle("StreamsPredict");
+dtStreamsPredict << ShowWindow(0);

@@ -1,0 +1,16 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+Try( Close(dtWeights, NoSave) );
+
+dtStreams = DataTable("Streams");
+
+PythonSend(dtStreams);
+PythonSubmitFile(gdd || "02.CalcWeight.py");
+
+dtWeights = PythonGet("df_weights") << NewDataView; Wait(0);
+dtWeights << SetWindowTitle("Weights");

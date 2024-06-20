@@ -1,0 +1,30 @@
+NamesDefaultToHere(1);
+
+gdd = GetDefaultDirectory();
+If (Hostis("Windows"),
+    gdd = ConvertFilePath(gdd, windows);
+);
+
+Try( Close(dtExtracts, NoSave) );
+
+dtStreams = DataTable("Streams");
+dtWeights = DataTable("Weights");
+dtWeights << ClearRowStates;
+
+If (NRows(dtWeights) > 5,
+    dtWeights << SelectWhere(:Weights >= ColMean(:Weights));
+,
+    dtWeights << SelectAllRows();
+);
+
+channelIds = AssociativeArray(dtWeights:ChannelID[dtWeights << GetSelectedRows]) << GetKeys;
+dtWeights << ClearRowStates;
+
+PythonSend(channelIds);
+PythonSend(dtStreams);
+PythonSubmitFile(gdd || "03.Extract.py");
+
+Try(Close(dtExtracts, NoSave));
+dtExtracts = PythonGet("df_extracts") << NewDataView; Wait(0);
+dtExtracts << SetWindowTitle("Extracts");
+//dtExtracts << HideColumns(1, { :SearchTime, :LiveID, :LiveTitle, :LiveCategory, :CategoryLength });

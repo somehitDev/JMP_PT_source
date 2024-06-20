@@ -1,4 +1,9 @@
+00_doc
 ._*
 __pycache__
 .vscode
 *.ipynb
+*.ppt
+*.pptx
+*.key
+*.mp4
